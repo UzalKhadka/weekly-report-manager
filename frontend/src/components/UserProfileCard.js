@@ -1,13 +1,10 @@
 import { Avatar, Card, CardHeader, Typography } from '@mui/material'
 import React from 'react'
-// import { useNavigate } from 'react-router'
 import { getRandomColor, getInitials } from './utilities'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 const UserProfileCard = ({ user }) => {
   let color = getRandomColor()
-
-  // const navigate = useNavigate()
 
   return (
     <div

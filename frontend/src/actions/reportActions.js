@@ -259,7 +259,7 @@ const deleteReport = (id) => async (dispatch, getState) => {
       },
     }
 
-    await axios.delete(`/api/report/${id}`, config)
+    await axios.delete(`/api/reports/${id}`, config)
 
     dispatch({
       type: REPORT_DELETE_SUCCESS,

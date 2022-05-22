@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-
-import { getUserDetails } from '../actions/userActions'
-import { listReportsByEmployee } from '../actions/reportActions'
 
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
@@ -14,10 +11,15 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
-import { display } from '@mui/system'
 import AddIcon from '@mui/icons-material/Add'
 
 import UserProfileCard from './UserProfileCard'
+import { getUserDetails } from '../actions/userActions'
+import {
+  deleteReport,
+  listReportsByEmployee,
+  updateReportByAdmin,
+} from '../actions/reportActions'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -74,11 +76,15 @@ const EmployeeReports = () => {
   }
 
   const approveReportHandler = (reportId) => {
-    alert('approved')
+    dispatch(updateReportByAdmin(reportId, true))
+    alert('Report Approved Successfully')
+    dispatch(listReportsByEmployee(id))
   }
 
   const rejectReportHandler = (reportId) => {
-    alert('rejected')
+    dispatch(updateReportByAdmin(reportId, false))
+    alert('Report Rejected Successfully')
+    dispatch(listReportsByEmployee(id))
   }
 
   const editReportHandler = (reportId) => {
@@ -86,20 +92,13 @@ const EmployeeReports = () => {
   }
 
   const deleteReportHandler = (reportId) => {
-    // dispatch(deleteReport())
-    alert('deleted')
+    dispatch(deleteReport(reportId))
+    alert('Report Deleted Successfully')
+    dispatch(listReportsByEmployee(id))
   }
 
   return (
     <div style={{ marginTop: '120px' }}>
-      {/* <div style={{ marginTop: '120px' }}>
-        <UserProfileCard />
-        <Typography variant='h4'>My Reports</Typography>
-        <Divider />
-
-        <div className='container'></div>
-      </div> */}
-
       {user && (
         <UserProfileCard
           user={{

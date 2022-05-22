@@ -9,15 +9,17 @@ import {
   updateReport,
 } from '../controllers/reportControllers.js'
 
-// import { isAuth, isAdmin } from '../middlewares/authMiddlewares'
+import { isAuth, isEmployee } from '../middlewares/authMiddlewares.js'
 
 const router = express.Router()
 
-router.route('/').get(getReports).post(createReport)
-// router.route("/").get(isAuth, isAdmin, getReports);
-
-router.route('/:id').get(getReportById).put(updateReport).delete(deleteReport)
-router.route('/user/:id').get(getReportsByUserId)
-router.route('/recent/user/:id').get(getRecentReportByUserId)
+router.route('/').get(isAuth, getReports).post(isAuth, isEmployee, createReport)
+router
+  .route('/:id')
+  .get(isAuth, getReportById)
+  .put(isAuth, updateReport)
+  .delete(isAuth, isEmployee, deleteReport)
+router.route('/user/:id').get(isAuth, getReportsByUserId)
+router.route('/recent/user/:id').get(isAuth, getRecentReportByUserId)
 
 export default router

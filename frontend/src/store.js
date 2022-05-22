@@ -6,10 +6,6 @@ import {
   userLoginReducer,
   userRegisterReducer,
   userDetailsReducer,
-  // userUpdateProfileReducer,
-  // userListReducer,
-  // userDeleteReducer,
-  // userUpdateReducer,
   employeeListReducer,
 } from './reducers/userReducers'
 
@@ -22,14 +18,12 @@ import {
   deleteReportReducer,
 } from './reducers/reportReducers'
 
+// creating a reducer by combining all the reducers
 const reducer = combineReducers({
   userLogin: userLoginReducer,
   userRegister: userRegisterReducer,
   userDetails: userDetailsReducer,
-  // userUpdateProfile: userUpdateProfileReducer,
-  // userList: userListReducer,
-  // userDelete: userDeleteReducer,
-  // userUpdate: userUpdateReducer,
+
   employeeList: employeeListReducer,
   createReport: createReportReducer,
   getReportDetails: getReportDetailsReducer,
@@ -39,16 +33,21 @@ const reducer = combineReducers({
   deleteReport: deleteReportReducer,
 })
 
+// check whether there is any information of user in local storage
+// and retreive it
 const userInfoFromStorage = localStorage.getItem('userInfo')
   ? JSON.parse(localStorage.getItem('userInfo'))
   : null
 
+// set up the initial state
 const initialState = {
   userLogin: { userInfo: userInfoFromStorage },
 }
 
+// needed middlewares
 const middleware = [thunk]
 
+// creating a store
 const store = configureStore({
   reducer,
   preloadedState: initialState,

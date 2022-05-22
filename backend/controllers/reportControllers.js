@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import Report from '../models/reportModel.js'
+import User from '../models/userModel.js'
 // import { generateToken } from '../utils/generateToken.js'
 import dotenv from 'dotenv'
 
@@ -104,6 +105,13 @@ export const createReport = asyncHandler(async (req, res) => {
   })
 
   if (report) {
+    const user = await User.findById(user_id)
+
+    if (user) {
+      user.reports.push(report._id)
+      await user.save()
+    }
+
     res.status(201).json(report)
   } else {
     res.status(404)
@@ -115,42 +123,37 @@ export const createReport = asyncHandler(async (req, res) => {
 // @route    PUT /api/reports/:id
 // @access   Auth
 export const updateReport = asyncHandler(async (req, res) => {
-  if (req.user._id == req.params.id) {
-    const report = await Report.findById(req.params.id)
+  const report = await Report.findById(req.params.id)
 
-    if (report) {
-      if (!report.is_received && !report.is_approved) {
-        report.start_date = req.body.start_date || report.start_date
-        report.end_date = req.body.end_date || report.end_date
-        report.user_id = req.body.user_id || report.user_id
-        report.task = req.body.task || report.task
-        report.description = req.body.description || report.description
-        report.hours_worked = req.body.hours_worked || report.hours_wored
-        report.satisfactory_score =
-          req.body.satisfactory_score || report.satisfactory_score
-        report.remarks = req.body.remarks || report.remarks
-        report.is_received = req.body.is_received || report.is_received
-        report.is_approved = req.body.is_approved || report.is_approved
+  if (report) {
+    if (!report.is_received && !report.is_approved) {
+      report.start_date = req.body.start_date || report.start_date
+      report.end_date = req.body.end_date || report.end_date
+      report.user_id = req.body.user_id || report.user_id
+      report.task = req.body.task || report.task
+      report.description = req.body.description || report.description
+      report.hours_worked = req.body.hours_worked || report.hours_worked
+      report.satisfactory_score =
+        req.body.satisfactory_score || report.satisfactory_score
+      report.remarks = req.body.remarks || report.remarks
+      report.is_received = req.body.is_received || report.is_received
+      report.is_approved = req.body.is_approved || report.is_approved
 
-        const updatedReport = await report.save()
+      const updatedReport = await report.save()
 
-        if (updatedReport) {
-          res.status(200).json(updatedReport)
-        } else {
-          res.status(404)
-          throw new Error('Report not found')
-        }
+      if (updatedReport) {
+        res.status(200).json(updatedReport)
       } else {
-        res.status(400)
-        throw new Error('Report already approved')
+        res.status(404)
+        throw new Error('Report not found')
       }
     } else {
-      res.status(404)
-      throw new Error('Report not found')
+      res.status(400)
+      throw new Error('Report already approved')
     }
   } else {
-    res.status(401)
-    throw new Error('Use not authorized')
+    res.status(404)
+    throw new Error('Report not found')
   }
 })
 
@@ -159,26 +162,21 @@ export const updateReport = asyncHandler(async (req, res) => {
 // @access   Auth
 export const deleteReport = asyncHandler(async (req, res) => {
   {
-    if (req.user._id == req.params.id) {
-      const report = await Report.findById(req.params.id)
+    const report = await Report.findById(req.params.id)
 
-      if (report) {
-        if (!report.is_received && !report.is_approved) {
-          await report.remove()
-          res.status(200).json({
-            message: 'Report deleted',
-          })
-        } else {
-          res.status(400)
-          throw new Error('Report already approved')
-        }
+    if (report) {
+      if (!report.is_received && !report.is_approved) {
+        await report.remove()
+        res.status(200).json({
+          message: 'Report deleted',
+        })
       } else {
-        res.status(404)
-        throw new Error('Report not found')
+        res.status(400)
+        throw new Error('Report already approved')
       }
     } else {
-      res.status(401)
-      throw new Error('Use not authorized')
+      res.status(404)
+      throw new Error('Report not found')
     }
   }
 })

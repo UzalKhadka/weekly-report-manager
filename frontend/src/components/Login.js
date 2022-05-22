@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import { login } from '../actions/userActions'
-
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -19,6 +17,8 @@ import Typography from '@mui/material/Typography'
 import DoneIcon from '@mui/icons-material/Done'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 
+import { login } from '../actions/userActions'
+
 const theme = createTheme()
 
 const Login = () => {
@@ -31,8 +31,6 @@ const Login = () => {
 
   const userLogin = useSelector((state) => state.userLogin)
   const { loading, error, userInfo } = userLogin
-
-  // const redirect = location.search ? location.search.split('=')[1] : '/'
 
   useEffect(() => {
     if (userInfo) {

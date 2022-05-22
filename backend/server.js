@@ -1,10 +1,9 @@
 import express from 'express'
 import dotenv from 'dotenv'
-// import bodyParser from 'body-parser'
+import bodyParser from 'body-parser'
 import colors from 'colors'
 import { connectDB } from './utils/dbConfig.js'
 import { errorHandler, notFound } from './middlewares/errorHandler.js'
-// import morgan from 'morgan'
 
 import userRoutes from './routes/userRoutes.js'
 import employeeRoutes from './routes/employeeRoutes.js'

@@ -7,15 +7,13 @@ import Register from './components/Register'
 import Login from './components/Login'
 import EmployeeList from './components/EmployeeList'
 import EmployeeReports from './components/EmployeeReports'
-// import EmployeeReports from './components/EmployeeReports'
 import CreateReport from './components/CreateReport'
 import ViewReport from './components/ViewReport'
 import EditReport from './components/EditReport'
 
 import './App.css'
-import MyReport from './components/MyReport'
-import Anauthorized from './components/Anauthorized'
-import NotFound from './components/NotFound'
+// import Unauthorized from './components/Unauthorized'
+// import NotFound from './components/NotFound'
 
 function App() {
   return (
@@ -32,14 +30,14 @@ function App() {
           <Route path='/employee/:id/new-report' element={<CreateReport />} />
           <Route
             path='/employee/:user_id/view-report/:report_id'
-            element={<MyReport />}
+            element={<ViewReport />}
           />
-          <Route path='/employee/:id/edit-report' element={<EditReport />} />
-          <Route path='/401' element={<Anauthorized />} />
-          <Route path='/404' element={<NotFound />} />
-          {/* <Route path='/employee-reports' element={<EmployeeReports />} /> */}
-          {/* <Route path='/create-report' element={<EmployeeList />} />
-          <Route path='/update-report' element={<EmployeeList />} /> */}
+          <Route
+            path='/employee/:user_id/edit-report/:report_id'
+            element={<EditReport />}
+          />
+          {/* <Route path='/401' element={<Unauthorized />} />
+          <Route path='/404' element={<NotFound />} /> */}
         </Routes>
       </Router>
     </>

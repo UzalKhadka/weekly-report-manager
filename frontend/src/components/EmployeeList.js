@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-
-import { listEmployees, deleteUser } from '../actions/userActions'
 
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
@@ -15,6 +11,8 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
+
+import { listEmployees, deleteUser } from '../actions/userActions'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -44,9 +42,6 @@ const EmployeeList = () => {
   const { loading, error, employees } = employeeList
 
   useEffect(() => {
-    // if (!userInfo.isAdmin) {
-    //   history.push('/login')
-    // }
     dispatch(listEmployees())
   }, [dispatch])
 

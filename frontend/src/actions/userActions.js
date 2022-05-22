@@ -227,8 +227,6 @@ const listUsers = () => async (dispatch, getState) => {
 
 const listEmployees = () => async (dispatch, getState) => {
   try {
-    // console.log('employee list', 'data')
-
     dispatch({
       type: EMPLOYEE_LIST_REQUEST,
     })
@@ -243,9 +241,7 @@ const listEmployees = () => async (dispatch, getState) => {
       },
     }
 
-    const { data } = await axios.get(`/api/employees`, config)
-
-    // console.log('employee list', data)
+    const { data } = await axios.get(`/api/employees/latest-reports`, config)
 
     dispatch({
       type: EMPLOYEE_LIST_SUCCESS,

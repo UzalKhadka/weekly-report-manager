@@ -138,7 +138,7 @@ export const getUsers = asyncHandler(async (req, res, next) => {
         userWithReports.recently_created_report_date = null
       }
 
-      delete userWithReports.reports
+      // delete userWithReports.reports
 
       return userWithReports
     })
@@ -154,7 +154,7 @@ export const getUsers = asyncHandler(async (req, res, next) => {
 // @route   GET /api/users/employees
 // @access  Admin & Associate
 export const getEmployees = asyncHandler(async (req, res, next) => {
-  const employees = await User.find({ department: 'Web Development' })
+  const employees = await User.find({ role: process.env.EMPLOYEE_ROLE })
     .select('-password')
     .select('-__v')
     .select('-createdAt')
@@ -162,40 +162,61 @@ export const getEmployees = asyncHandler(async (req, res, next) => {
     .populate('reports')
 
   if (employees) {
-    // only sending the most recent created report
-    const employeesWithReports = employees.map((employee) => {
-      const employeeWithReports = employee.toObject()
-
-      // changing the roles of the employees
-      employeeWithReports.role = getUserRole(employee.role)
-
-      // sorting those reports by date
-      employeeWithReports.reports = employee.reports.sort((a, b) => {
-        return new Date(b.start_date) - new Date(a.start_date)
-      })
-
-      // get only the first report
-      if (employeeWithReports.reports[0]) {
-        employeeWithReports.recently_created_report_id =
-          employeeWithReports.reports[0]._id
-        employeeWithReports.recently_created_report_date =
-          employeeWithReports.reports[0].start_date
-      } else {
-        employeeWithReports.recently_created_report_id = null
-        employeeWithReports.recently_created_report_date = null
-      }
-
-      delete employeeWithReports.reports
-
-      return employeeWithReports
-    })
-
-    res.json(employeesWithReports)
+    res.json(employees)
   } else {
     res.status(404)
     throw new Error('Employees not found')
   }
 })
+
+// @desc    Get only employee users with latest reports data
+// @route   GET /api/users/employees/latest-reports
+// @access  Admin & Associate
+export const getEmployeesWithLatestReport = asyncHandler(
+  async (req, res, next) => {
+    const employees = await User.find({ role: process.env.EMPLOYEE_ROLE })
+      .select('-password')
+      .select('-__v')
+      .select('-createdAt')
+      .select('-updatedAt')
+      .populate('reports')
+
+    if (employees) {
+      // only sending the most recent created report
+      const employeesWithReports = employees.map((employee) => {
+        const employeeWithReports = employee.toObject()
+
+        // changing the roles of the employees
+        employeeWithReports.role = getUserRole(employee.role)
+
+        // sorting those reports by date
+        employeeWithReports.reports = employee.reports.sort((a, b) => {
+          return new Date(b.start_date) - new Date(a.start_date)
+        })
+
+        // get only the first report
+        if (employeeWithReports.reports[0]) {
+          employeeWithReports.recently_created_report_id =
+            employeeWithReports.reports[0]._id
+          employeeWithReports.recently_created_report_date =
+            employeeWithReports.reports[0].start_date
+        } else {
+          employeeWithReports.recently_created_report_id = null
+          employeeWithReports.recently_created_report_date = null
+        }
+
+        delete employeeWithReports.reports
+
+        return employeeWithReports
+      })
+
+      res.json(employeesWithReports)
+    } else {
+      res.status(404)
+      throw new Error('Employees not found')
+    }
+  }
+)
 
 // @desc    Get a user by id
 // @route   GET /api/users/:id

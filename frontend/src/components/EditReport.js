@@ -1,14 +1,301 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate, useParams } from 'react-router-dom'
+
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import CssBaseline from '@mui/material/CssBaseline'
+import TextField from '@mui/material/TextField'
+import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
+import AssessmentIcon from '@mui/icons-material/Assessment'
+import Typography from '@mui/material/Typography'
+import Container from '@mui/material/Container'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import Rating from '@mui/material/Rating'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import Stack from '@mui/material/Stack'
+
+import { getReportDetails, updateReport } from '../actions/reportActions'
+import { getUserDetails } from '../actions/userActions'
+import UserProfileCard from './UserProfileCard'
+import { Divider } from '@mui/material'
+import { REPORT_UPDATE_RESET } from '../constants/reportConstants'
+
+const theme = createTheme()
 
 const EditReport = () => {
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(new Date())
+  const [task, setTask] = useState('')
+  const [description, setDescription] = useState('')
+  const [score, setScore] = useState(0)
+  const [hoursWorked, setHoursWorked] = useState(0)
+  const [remarks, setRemarks] = useState('')
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { user_id, report_id } = useParams()
+
+  const userLogin = useSelector((state) => state.userLogin)
+  const { loading, error, userInfo } = userLogin
+
+  const userDetails = useSelector((state) => state.userDetails)
+  const {
+    loading: userDetailsLoading,
+    error: userDetailsError,
+    user,
+  } = userDetails
+
+  const reportDetails = useSelector((state) => state.getReportDetails)
+  const {
+    loading: reportDetailsLoading,
+    error: reportDetailsError,
+    report,
+  } = reportDetails
+
+  const updateReportSelector = useSelector((state) => state.updateReport)
+  const {
+    loading: updateReportLoading,
+    error: updateReportError,
+    success: updateReportSuccess,
+  } = updateReportSelector
+
+  useEffect(() => {
+    if (!report) {
+      dispatch(getUserDetails(user_id))
+
+      dispatch(getReportDetails(report_id))
+    } else {
+      setStartDate(report.start_date)
+      setEndDate(report.end_date)
+      setTask(report.task)
+      setDescription(report.description)
+      setScore(report.satisfactory_score)
+      setHoursWorked(report.hours_worked)
+      setRemarks(report.remarks)
+    }
+
+    if (updateReportSuccess) {
+      dispatch({ type: REPORT_UPDATE_RESET })
+      navigate(`/employee/${user_id}`)
+    }
+  }, [
+    dispatch,
+    user_id,
+    report_id,
+    report,
+    user,
+    updateReportSuccess,
+    navigate,
+  ])
+
+  const editReportHandler = (event) => {
+    event.preventDefault()
+
+    if (
+      report &&
+      report._id &&
+      startDate &&
+      endDate &&
+      task &&
+      description &&
+      score &&
+      hoursWorked &&
+      remarks
+    ) {
+      alert('Report Edited Successfully')
+
+      dispatch(
+        updateReport(
+          report._id,
+          startDate,
+          endDate,
+          task,
+          description,
+          score,
+          hoursWorked,
+          remarks
+        )
+      )
+    } else {
+      alert('Please ensure all the fields are Entered and Valid')
+    }
+  }
+
   return (
-    <>
-      <div>EditReport</div>
-      <div>EditReport</div>
-      <div>EditReport</div>
-      <div>EditReport</div>
-      <div>EditReport</div>
-    </>
+    <div style={{ marginTop: '120px' }}>
+      {userDetails && (
+        <UserProfileCard
+          user={{
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            department: user.department,
+            role: user.role,
+          }}
+        />
+      )}
+
+      {report && (
+        <ThemeProvider theme={theme}>
+          <Container component='main' maxWidth='xs'>
+            <CssBaseline />
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                <AssessmentIcon />
+              </Avatar>
+              <Typography component='h1' variant='h5'>
+                Edit Your Report
+              </Typography>
+              <Box noValidate sx={{ mt: 3 }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    {/* Date */}
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <Stack spacing={3}>
+                        <DatePicker
+                          views={['day']}
+                          label='Start Date'
+                          value={startDate}
+                          onChange={(e) => setStartDate(e)}
+                          renderInput={(params) => (
+                            <TextField {...params} helperText={null} />
+                          )}
+                        />
+                        <DatePicker
+                          views={['day']}
+                          label='End Date'
+                          value={endDate}
+                          onChange={(e) => setEndDate(e)}
+                          renderInput={(params) => (
+                            <TextField {...params} helperText={null} />
+                          )}
+                        />
+                      </Stack>
+                    </LocalizationProvider>
+                    {/* Date */}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      name='task'
+                      required
+                      fullWidth
+                      id='task'
+                      label='Task Name'
+                      autoFocus
+                      value={task}
+                      onChange={(e) => setTask(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      id='description'
+                      label='Description'
+                      name='description'
+                      multiline
+                      rows={4}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box
+                      sx={{
+                        '& > legend': { mt: 2 },
+                      }}
+                    />
+                    <Typography component='legend'>
+                      Satisfactory Score
+                    </Typography>
+                    <Rating
+                      name='simple-controlled'
+                      value={score}
+                      onChange={(event, newValue) => {
+                        setScore(newValue)
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      id='hours'
+                      label='Hours Worked'
+                      name='hours'
+                      type='number'
+                      value={hoursWorked}
+                      onChange={(e) => {
+                        setHoursWorked(e.target.value)
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name='remarks'
+                      label='Remarks'
+                      type='text'
+                      id='remark'
+                      value={remarks}
+                      onChange={(e) => setRemarks(e.target.value)}
+                    />
+                  </Grid>
+                </Grid>
+
+                {report && report.is_received ? (
+                  report.is_approved ? (
+                    <Button fullWidth sx={{ mt: 2 }}>
+                      Status: Approved
+                    </Button>
+                  ) : (
+                    <Button fullWidth sx={{ mt: 2 }}>
+                      Status: Rejected
+                    </Button>
+                  )
+                ) : (
+                  <Button fullWidth sx={{ mt: 2 }}>
+                    Status: Pending
+                  </Button>
+                )}
+
+                <Divider sx={{ background: '#000000', mb: 2 }} />
+
+                {userInfo.role === 'Employee' ? (
+                  <>
+                    {!report.is_received && (
+                      <>
+                        <Button
+                          fullWidth
+                          variant='contained'
+                          sx={{ mb: 2 }}
+                          onClick={editReportHandler}
+                        >
+                          Update
+                        </Button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <></>
+                )}
+              </Box>
+            </Box>
+          </Container>
+        </ThemeProvider>
+      )}
+    </div>
   )
 }
 

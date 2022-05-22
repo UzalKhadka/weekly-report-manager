@@ -6,18 +6,15 @@ import {
   userRegister,
   deleteUser,
 } from '../controllers/userControllers.js'
-// import { userSignupValidator } from '../middlewares/userValidatorMiddleware.js'
 import { isAuth, isAdmin } from '../middlewares/authMiddlewares.js'
 
 const router = express.Router()
 
-router.route('/').post(userRegister).get(getUsers)
-// .get(isAuth, isAdmin, getAllUsers)
+router.route('/').post(userRegister).get(isAuth, isAdmin, getUsers)
 router.route('/login').post(userLogin)
-router.route('/:id').get(getUserById).delete(deleteUser)
-// router.route('/:id').get(isAuth, isAdmin, getUserById).put(updateUserProfile)
-// router.route('/:id/profile').get(getUserProfile)
-// router.route('/:id/profile').get(isAuth, getUserProfile)
-// router.route('/:id/profile').delete(deleteUser)
+router
+  .route('/:id')
+  .get(isAuth, getUserById)
+  .delete(isAuth, isAdmin, deleteUser)
 
 export default router
