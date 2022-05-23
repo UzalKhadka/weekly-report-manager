@@ -125,6 +125,16 @@ const EmployeeReports = () => {
         </Button>
       )}
 
+      {(error || errorReports) && (
+        <div
+          style={{
+            marginTop: '10px',
+          }}
+        >
+          <Message variant='error' children={error || errorReports} />
+        </div>
+      )}
+
       {user && (
         <UserProfileCard
           user={{

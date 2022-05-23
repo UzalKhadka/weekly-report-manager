@@ -1,16 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import {
-  AppBar,
-  Button,
-  Toolbar,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import { AppBar, Button, Toolbar, Typography } from '@mui/material'
 
 import atclogo from './atc.png'
 import { logout } from '../actions/userActions'

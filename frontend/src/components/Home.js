@@ -2,15 +2,12 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router'
 
-import { SnackbarProvider, useSnackbar } from 'notistack'
-
 import Loader from './Loader'
 import Message from './Message'
 
 const Home = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  // const { enqueueSnackbar } = useSnackbar()
 
   const userLogin = useSelector((state) => state.userLogin)
   const { loading, error, userInfo } = userLogin
