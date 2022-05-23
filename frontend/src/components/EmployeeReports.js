@@ -21,6 +21,10 @@ import {
   updateReportByAdmin,
 } from '../actions/reportActions'
 
+import Loader from './Loader'
+import Message from './Message'
+import { ATC_COLOR } from './utilities'
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
@@ -98,7 +102,29 @@ const EmployeeReports = () => {
   }
 
   return (
-    <div style={{ marginTop: '120px' }}>
+    <div
+      style={{
+        margin: '0 50px',
+        marginTop: '100px',
+      }}
+    >
+      {(loading || loadingReports) && <Loader />}
+
+      {userInfo && userInfo.role === 'Admin' && (
+        <Button
+          style={{
+            background: ATC_COLOR.secondary,
+            color: 'white',
+            height: '50px',
+            marginTop: '-20px',
+            padding: '0 20px',
+          }}
+          onClick={() => navigate('/employee-list')}
+        >
+          Go Back
+        </Button>
+      )}
+
       {user && (
         <UserProfileCard
           user={{
@@ -115,7 +141,12 @@ const EmployeeReports = () => {
       {userInfo && userInfo.role === 'Employee' && (
         <Button
           variant='contained'
-          style={{ padding: '10px', margin: '10px 0', marginBottom: '30px' }}
+          style={{
+            padding: '10px',
+            margin: '10px 0',
+            marginBottom: '30px',
+            backgroundColor: ATC_COLOR.primary,
+          }}
           onClick={newReportHandler}
         >
           {<AddIcon />} New Report
@@ -169,7 +200,7 @@ const EmployeeReports = () => {
                   <StyledTableCell component='th' scope='row'>
                     <Button
                       variant='contained'
-                      color='primary'
+                      style={{ backgroundColor: ATC_COLOR.primary }}
                       onClick={() => {
                         reportOpener(report._id)
                       }}

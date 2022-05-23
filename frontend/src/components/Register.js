@@ -16,9 +16,12 @@ import { Divider } from '@mui/material'
 
 import { register } from '../actions/userActions'
 
+import Loader from './Loader'
+import Message from './Message'
+
 const theme = createTheme()
 
-const Signup = ({ history }) => {
+const Signup = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -52,6 +55,28 @@ const Signup = ({ history }) => {
 
   return (
     <ThemeProvider theme={theme}>
+      {loading && <Loader />}
+
+      {error && (
+        <div
+          style={{
+            marginTop: '10px',
+          }}
+        >
+          <Message variant='error' children={error} />
+        </div>
+      )}
+
+      {message && (
+        <div
+          style={{
+            marginTop: '10px',
+          }}
+        >
+          <Message variant='error' children={message} />
+        </div>
+      )}
+
       <Container component='main' maxWidth='xs'>
         <CssBaseline />
         <Box

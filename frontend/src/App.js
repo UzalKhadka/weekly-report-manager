@@ -12,8 +12,6 @@ import ViewReport from './components/ViewReport'
 import EditReport from './components/EditReport'
 
 import './App.css'
-// import Unauthorized from './components/Unauthorized'
-// import NotFound from './components/NotFound'
 
 function App() {
   return (
@@ -25,7 +23,6 @@ function App() {
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
           <Route path='/employee-list' element={<EmployeeList />} />
-          {/* <Route path='/my-reports' element={<EmployeeReports />} /> */}
           <Route path='/employee/:id' element={<EmployeeReports />} />
           <Route path='/employee/:id/new-report' element={<CreateReport />} />
           <Route
@@ -36,8 +33,6 @@ function App() {
             path='/employee/:user_id/edit-report/:report_id'
             element={<EditReport />}
           />
-          {/* <Route path='/401' element={<Unauthorized />} />
-          <Route path='/404' element={<NotFound />} /> */}
         </Routes>
       </Router>
     </>

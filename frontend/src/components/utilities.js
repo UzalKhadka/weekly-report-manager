@@ -1,3 +1,10 @@
+export const ATC_COLOR = {
+  primary: '#063970',
+  primaryDark: '#020F1C',
+  secondary: '#FF4352',
+  white: '#FFFFFF',
+}
+
 export const getRandomColor = () => {
   var letters = '0123456789ABCDEF'
   var color = '#'

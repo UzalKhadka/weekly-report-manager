@@ -21,6 +21,10 @@ import Stack from '@mui/material/Stack'
 import { createReport } from '../actions/reportActions'
 import { REPORT_CREATE_RESET } from '../constants/reportConstants'
 
+import Loader from './Loader'
+import Message from './Message'
+import { ATC_COLOR } from './utilities'
+
 const theme = createTheme()
 
 const CreateReport = () => {
@@ -53,6 +57,8 @@ const CreateReport = () => {
       dispatch({ type: REPORT_CREATE_RESET })
 
       navigate(`/employee/${userInfo._id}`)
+    } else {
+      dispatch({ type: REPORT_CREATE_RESET })
     }
   }, [userInfo, report, navigate, dispatch])
 
@@ -79,17 +85,48 @@ const CreateReport = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container component='main' maxWidth='xs' style={{ marginTop: '110px' }}>
+      {(loading || loadingReport) && <Loader />}
+      <Container
+        component='main'
+        maxWidth='xs'
+        style={{
+          marginTop: '100px',
+        }}
+      >
         <CssBaseline />
+
+        <Button
+          style={{
+            background: ATC_COLOR.secondary,
+            color: 'white',
+            height: '50px',
+            marginTop: '-20px',
+            padding: '0 20px',
+          }}
+          onClick={() => navigate(`/employee/${userInfo._id}`)}
+        >
+          Go Back
+        </Button>
+
+        {(error || errorReport) && (
+          <div
+            style={{
+              marginTop: '10px',
+            }}
+          >
+            <Message variant='error' children={error || errorReport} />
+          </div>
+        )}
+
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 4,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: ATC_COLOR.primary }}>
             <AssessmentIcon />
           </Avatar>
           <Typography component='h1' variant='h5'>
@@ -200,7 +237,7 @@ const CreateReport = () => {
             <Button
               fullWidth
               variant='contained'
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, background: ATC_COLOR.primary }}
               onClick={createReportHandler}
             >
               Create Report

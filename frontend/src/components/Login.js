@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
-import CssBaseline from '@mui/material/CssBaseline'
 import TextField from '@mui/material/TextField'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
@@ -19,12 +18,17 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 
 import { login } from '../actions/userActions'
 
+import Loader from './Loader'
+import Message from './Message'
+import { ATC_COLOR } from './utilities'
+
 const theme = createTheme()
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
+  const [message, setMessage] = useState(null)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -36,13 +40,18 @@ const Login = () => {
     if (userInfo) {
       navigate('/')
     }
-  }, [userInfo, navigate])
+
+    if (error) {
+      setMessage(error)
+    }
+  }, [userInfo, navigate, error])
 
   const submitHandler = (event) => {
     event.preventDefault()
 
     if (!email.trim() || !password.trim()) {
-      return
+      alert('Please enter your email and password!')
+      setMessage('Please enter your email and password!')
     }
     // dispatch the login action
     dispatch(login(email, password, rememberMe))
@@ -50,19 +59,49 @@ const Login = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box m={30} y={5}>
-        <Grid container component='main' sx={{ height: '70vh' }}>
-          <CssBaseline />
+      {loading && <Loader />}
+
+      {error && (
+        <div
+          style={{
+            marginTop: '10px',
+          }}
+        >
+          <Message variant='error' children={error} />
+        </div>
+      )}
+
+      {message && (
+        <div
+          style={{
+            marginTop: '10px',
+          }}
+        >
+          <Message variant='error' children={message} />
+        </div>
+      )}
+
+      <Box
+        m={10}
+        ml={30}
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Grid container component='main' sx={{ height: '70vh', width: '100%' }}>
+          {/* <CssBaseline /> */}
           <Grid
             item
-            xs={12}
-            sm={8}
+            // xs={12}
+            // sm={8}
             md={5}
             component={Paper}
             elevation={6}
             square
             sx={{
-              bgcolor: 'darkblue',
+              bgcolor: ATC_COLOR.primary,
               boxShadow: 1,
               borderRadius: 2,
               p: 2,
@@ -95,7 +134,7 @@ const Login = () => {
                 variant='h3'
                 align='center'
                 sx={{
-                  my: 6,
+                  my: 3,
                   fontWeight: 600,
                   color: 'white',
                   fontSize: '20px',
@@ -109,21 +148,40 @@ const Login = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  flexWrap: 'wrap',
+                  justifyContent: 'end',
+                  gap: '10px',
                   color: 'white',
                 }}
               >
-                <span>
-                  <DoneIcon />
-                  Hassle free weekly reports
+                <span
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <DoneIcon style={{ marginRight: '20px' }} />
+                  Hassle-free Weekly Reports Management System
                 </span>
-                <span>
-                  <DoneIcon />
+                <span
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <DoneIcon style={{ marginRight: '20px' }} />
                   Supports Unlimited numbers of Employees
                 </span>
-                <span>
-                  <DoneIcon />
-                  Special Admin and Associate roles
+                <span
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <DoneIcon style={{ marginRight: '20px' }} />
+                  Special Admin and Employee roles
                 </span>
               </div>
             </Box>
@@ -146,7 +204,7 @@ const Login = () => {
                 alignItems: 'center',
               }}
             >
-              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <Avatar sx={{ m: 1, bgcolor: ATC_COLOR.primary }}>
                 <LockOutlinedIcon />
               </Avatar>
               <Typography component='h1' variant='h5'>
@@ -189,7 +247,7 @@ const Login = () => {
                   type='submit'
                   fullWidth
                   variant='contained'
-                  sx={{ mt: 3, mb: 2 }}
+                  sx={{ mt: 3, mb: 2, background: ATC_COLOR.primary }}
                 >
                   Sign In
                 </Button>

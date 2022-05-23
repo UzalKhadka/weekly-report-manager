@@ -14,6 +14,10 @@ import Button from '@mui/material/Button'
 
 import { listEmployees, deleteUser } from '../actions/userActions'
 
+import Loader from './Loader'
+import Message from './Message'
+import { ATC_COLOR } from './utilities'
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
@@ -66,9 +70,24 @@ const EmployeeList = () => {
   }
 
   return (
-    <>
-      <p>p</p>
-      <p>p</p>
+    <div
+      style={{
+        margin: '0 50px',
+        marginTop: '80px',
+      }}
+    >
+      {loading && <Loader />}
+
+      {error && (
+        <div
+          style={{
+            marginTop: '10px',
+          }}
+        >
+          <Message variant='error' children={error} />
+        </div>
+      )}
+
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 200 }} aria-label='customized table'>
           <TableHead>
@@ -107,7 +126,7 @@ const EmployeeList = () => {
                     {employee.recently_created_report_id ? (
                       <Button
                         variant='contained'
-                        color='primary'
+                        style={{ backgroundColor: ATC_COLOR.primary }}
                         onClick={() =>
                           viewLastUpdatedReportHandler(
                             employee._id,
@@ -124,7 +143,7 @@ const EmployeeList = () => {
                   <StyledTableCell align='right'>
                     <Button
                       variant='contained'
-                      color='primary'
+                      style={{ backgroundColor: ATC_COLOR.primary }}
                       onClick={() => profileHandler(employee._id)}
                     >
                       View
@@ -146,7 +165,7 @@ const EmployeeList = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    </>
+    </div>
   )
 }
 

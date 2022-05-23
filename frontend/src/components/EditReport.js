@@ -24,6 +24,10 @@ import UserProfileCard from './UserProfileCard'
 import { Divider } from '@mui/material'
 import { REPORT_UPDATE_RESET } from '../constants/reportConstants'
 
+import Loader from './Loader'
+import Message from './Message'
+import { ATC_COLOR } from './utilities'
+
 const theme = createTheme()
 
 const EditReport = () => {
@@ -126,7 +130,48 @@ const EditReport = () => {
   }
 
   return (
-    <div style={{ marginTop: '120px' }}>
+    <div
+      style={{
+        margin: '0 50px',
+        marginTop: '100px',
+      }}
+    >
+      {(loading ||
+        userDetailsLoading ||
+        reportDetailsLoading ||
+        updateReportLoading) && <Loader />}
+
+      <Button
+        style={{
+          background: ATC_COLOR.secondary,
+          color: 'white',
+          height: '50px',
+          marginTop: '-20px',
+          padding: '0 20px',
+        }}
+        onClick={() =>
+          navigate(`/employee/${user_id}/view-report/${report_id}`)
+        }
+      >
+        Go Back
+      </Button>
+
+      {(error ||
+        userDetailsError ||
+        reportDetailsError ||
+        updateReportError) && (
+        <div
+          style={{
+            marginTop: '10px',
+          }}
+        >
+          <Message
+            variant='error'
+            children={error || userDetailsError || reportDetailsError}
+          />
+        </div>
+      )}
+
       {userDetails && (
         <UserProfileCard
           user={{
@@ -150,7 +195,7 @@ const EditReport = () => {
                 alignItems: 'center',
               }}
             >
-              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <Avatar sx={{ m: 1, bgcolor: ATC_COLOR.primary }}>
                 <AssessmentIcon />
               </Avatar>
               <Typography component='h1' variant='h5'>
@@ -279,7 +324,7 @@ const EditReport = () => {
                         <Button
                           fullWidth
                           variant='contained'
-                          sx={{ mb: 2 }}
+                          sx={{ mb: 2, background: ATC_COLOR.primary }}
                           onClick={editReportHandler}
                         >
                           Update
