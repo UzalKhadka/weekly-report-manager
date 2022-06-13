@@ -12,7 +12,7 @@ const Loader = () => {
     >
       <CircularProgress
         style={{
-          color: '#063970',
+          color: '#0B3C49',
           height: '80px',
           width: '80px',
           position: 'fixed',

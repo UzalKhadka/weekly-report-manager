@@ -1,7 +1,6 @@
 import { Avatar, Card, CardHeader, Typography } from '@mui/material'
 import React from 'react'
 import { getRandomColor, getInitials } from './utilities'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 const UserProfileCard = ({ user }) => {
   let color = getRandomColor()
@@ -29,7 +28,7 @@ const UserProfileCard = ({ user }) => {
           }
           style={{ padding: '0 0 10px 0' }}
           title={user.name}
-          subheader={user.department}
+          subheader={user.department.name}
         ></CardHeader>
 
         <table
@@ -45,25 +44,7 @@ const UserProfileCard = ({ user }) => {
               <Typography>{user.name}</Typography>
             </td>
           </tr>
-          <tr>
-            <td>
-              <Typography>ID</Typography>
-            </td>
-            <td>
-              <Typography>
-                {user._id}{' '}
-                {
-                  <ContentCopyIcon
-                    style={{ height: '16px', cursor: 'pointer' }}
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${user._id}`)
-                      alert(`Copied the ID of ${user.name}`)
-                    }}
-                  />
-                }
-              </Typography>
-            </td>
-          </tr>
+
           <tr>
             <td>
               <Typography>Role</Typography>
@@ -85,7 +66,7 @@ const UserProfileCard = ({ user }) => {
               <Typography>Department</Typography>
             </td>
             <td>
-              <Typography>{user.department}</Typography>
+              <Typography>{user.department.name}</Typography>
             </td>
           </tr>
         </table>

@@ -7,6 +7,7 @@ import {
   userRegisterReducer,
   userDetailsReducer,
   employeeListReducer,
+  employeeNameIdDeptListReducer,
 } from './reducers/userReducers'
 
 import {
@@ -18,6 +19,14 @@ import {
   deleteReportReducer,
 } from './reducers/reportReducers'
 
+import {
+  createDepartmentReducer,
+  deleteDepartmentReducer,
+  getDepartmentDetailsReducer,
+  listDepartmentsReducer,
+  updateDepartmentReducer,
+} from './reducers/departmentReducers'
+
 // creating a reducer by combining all the reducers
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -25,12 +34,20 @@ const reducer = combineReducers({
   userDetails: userDetailsReducer,
 
   employeeList: employeeListReducer,
+  employeeNameIdDeptList: employeeNameIdDeptListReducer,
+
   createReport: createReportReducer,
   getReportDetails: getReportDetailsReducer,
   listReportsByEmployee: listReportsByEmployeeReducer,
   updateReport: updateReportReducer,
   adminUpdateReport: adminUpdateReportReducer,
   deleteReport: deleteReportReducer,
+
+  createDepartment: createDepartmentReducer,
+  deleteDepartment: deleteDepartmentReducer,
+  getDepartmentDetails: getDepartmentDetailsReducer,
+  listDepartments: listDepartmentsReducer,
+  updateDepartment: updateDepartmentReducer,
 })
 
 // check whether there is any information of user in local storage

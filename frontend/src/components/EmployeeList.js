@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
@@ -11,9 +11,13 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
+// import { usePagination } from '@mui/material/Pagination'
+import Pagination from '@mui/material/Pagination'
+import { makeStyles } from '@material-ui/core'
 
-import { listEmployees, deleteUser } from '../actions/userActions'
+import { listEmployees, listEmployeesNameIdDept } from '../actions/userActions'
 
+import SearchBar from './SearchBar'
 import Loader from './Loader'
 import Message from './Message'
 import { ATC_COLOR } from './utilities'
@@ -38,31 +42,50 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
+const useStyles = makeStyles(() => ({
+  ul: {
+    '& .MuiPaginationItem-root': {
+      color: ATC_COLOR.primary,
+      // '&:hover': {
+      //   backgroundColor: ATC_COLOR.primaryLight,
+      //   color: ATC_COLOR.white,
+      // },
+    },
+    '& .MuiPaginationItem-root.Mui-selected': {
+      backgroundColor: ATC_COLOR.primary,
+      color: ATC_COLOR.white,
+    },
+  },
+}))
+
 const EmployeeList = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const params = useParams
+
+  let [pageNumber, setPageNumber] = useState(params.pageNumber || 1)
+
+  const classes = useStyles()
 
   const employeeList = useSelector((state) => state.employeeList)
-  const { loading, error, employees } = employeeList
+  const { loading, error, employees, pages, page } = employeeList
+
+  const employeeNameIdDeptList = useSelector(
+    (state) => state.employeeNameIdDeptList
+  )
+  const {
+    loading: employeeNameIdDeptListLoading,
+    error: employeeNameIdDeptListError,
+    employees: employeeNameIdDeptListEmployees,
+  } = employeeNameIdDeptList
 
   useEffect(() => {
-    dispatch(listEmployees())
-  }, [dispatch])
+    dispatch(listEmployees(pageNumber))
+    dispatch(listEmployeesNameIdDept())
+  }, [dispatch, pageNumber])
 
   const profileHandler = (id) => {
     navigate(`/employee/${id}`)
-  }
-
-  const employeeDeleteHandler = (id, name) => {
-    let input = prompt(`Please enter the ID of ${name}`)
-
-    if (input.trim() === id) {
-      alert('Employee deleted')
-      dispatch(deleteUser(id))
-      dispatch(listEmployees())
-    } else {
-      alert(`The entered ID does not match with ${name}'s ID`)
-    }
   }
 
   const viewLastUpdatedReportHandler = (employee_id, report_id) => {
@@ -74,45 +97,89 @@ const EmployeeList = () => {
       style={{
         margin: '0 50px',
         marginTop: '80px',
+        marginBottom: '20px',
       }}
     >
-      {loading && <Loader />}
+      {(loading || employeeNameIdDeptListLoading) && <Loader />}
 
-      {error && (
+      {(error || employeeNameIdDeptListError) && (
         <div
           style={{
             marginTop: '10px',
           }}
         >
-          <Message variant='error' children={error} />
+          <Message
+            variant='error'
+            children={error || employeeNameIdDeptListError}
+          />
         </div>
       )}
 
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          marginBottom: '10px',
+          fontFamily: 'Roboto, sans-serif',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '30px',
+            fontWeight: 'bold',
+            color: '#063970',
+            cursor: 'default',
+          }}
+        >
+          Our Employees
+        </span>
+        <SearchBar
+          data={employeeNameIdDeptListEmployees}
+          placeholder='Search Employees'
+        />
+      </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 200 }} aria-label='customized table'>
           <TableHead>
             <TableRow>
+              <StyledTableCell>SN</StyledTableCell>
               <StyledTableCell>Employee Name</StyledTableCell>
+              <StyledTableCell>Department</StyledTableCell>
               <StyledTableCell align='right'>Last Updated Date</StyledTableCell>
               <StyledTableCell align='right'>
                 Last Updated Report
               </StyledTableCell>
               <StyledTableCell align='right'>View All Reports</StyledTableCell>
-              <StyledTableCell>Actions</StyledTableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {employees &&
-              employees.map((employee) => (
+              employees.map((employee, index) => (
                 <StyledTableRow key={employee._id}>
+                  <StyledTableCell component='th' scope='row'>
+                    {index + 1 + (page - 1) * 10}
+                  </StyledTableCell>
+
                   <StyledTableCell component='th' scope='row'>
                     <p
                       style={{ cursor: 'pointer' }}
                       onClick={() => profileHandler(employee._id)}
+                      onMouseEnter={(e) =>
+                        (e.target.style.textDecoration = 'underline')
+                      }
+                      onMouseLeave={(e) =>
+                        (e.target.style.textDecoration = 'none')
+                      }
                     >
                       {employee.name}
                     </p>
+                  </StyledTableCell>
+
+                  <StyledTableCell component='th' scope='row'>
+                    {employee.department.name}
                   </StyledTableCell>
 
                   <StyledTableCell align='right'>
@@ -137,7 +204,7 @@ const EmployeeList = () => {
                         View
                       </Button>
                     ) : (
-                      <Button>No Reports</Button>
+                      <>No Reports</>
                     )}
                   </StyledTableCell>
                   <StyledTableCell align='right'>
@@ -149,22 +216,29 @@ const EmployeeList = () => {
                       View
                     </Button>
                   </StyledTableCell>
-                  <StyledTableCell>
-                    <Button
-                      variant='outlined'
-                      color='primary'
-                      onClick={() =>
-                        employeeDeleteHandler(employee._id, employee.name)
-                      }
-                    >
-                      Delete
-                    </Button>
-                  </StyledTableCell>
                 </StyledTableRow>
               ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: '20px',
+        }}
+      >
+        <Pagination
+          classes={{ ul: classes.ul }}
+          count={pages}
+          size='large'
+          page={pageNumber}
+          onChange={(event, value) => setPageNumber(value)}
+        />
+      </div>
     </div>
   )
 }

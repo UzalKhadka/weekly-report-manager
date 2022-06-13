@@ -46,15 +46,28 @@ export const getReportById = asyncHandler(async (req, res) => {
 // @route    GET /api/reports/user/:id
 // @access   Auth
 export const getReportsByUserId = asyncHandler(async (req, res) => {
-  const report = await Report.find({ user_id: req.params.id }, '', {
-    sort: { start_date: -1 },
+  const pageSize = 10
+  const page = Number(req.query.pageNumber) || 1
+
+  const reportsCount = await Report.countDocuments({
+    user_id: req.params.id,
   })
 
-  if (report) {
-    res.status(200).json(report)
+  const reports = await Report.find({ user_id: req.params.id }, '', {
+    sort: { start_date: -1 },
+  })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1))
+
+  if (reports) {
+    res.status(200).json({
+      reports,
+      page,
+      pages: Math.ceil(reportsCount / pageSize),
+    })
   } else {
     res.status(404)
-    throw new Error('Report not found')
+    throw new Error('Reports not found')
   }
 })
 

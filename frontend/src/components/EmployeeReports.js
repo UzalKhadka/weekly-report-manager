@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -12,18 +12,23 @@ import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import UserProfileCard from './UserProfileCard'
-import { getUserDetails } from '../actions/userActions'
+import { deleteUser, getUserDetails } from '../actions/userActions'
 import {
   deleteReport,
   listReportsByEmployee,
   updateReportByAdmin,
 } from '../actions/reportActions'
 
+import { makeStyles } from '@material-ui/core'
+
 import Loader from './Loader'
 import Message from './Message'
 import { ATC_COLOR } from './utilities'
+import { Pagination } from '@mui/material'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -45,10 +50,32 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
+const useStyles = makeStyles(() => ({
+  ul: {
+    '& .MuiPaginationItem-root': {
+      color: ATC_COLOR.primary,
+      // '&:hover': {
+      //   backgroundColor: ATC_COLOR.primaryLight,
+      //   color: ATC_COLOR.white,
+      // },
+    },
+    '& .MuiPaginationItem-root.Mui-selected': {
+      backgroundColor: ATC_COLOR.primary,
+      color: ATC_COLOR.white,
+    },
+  },
+}))
+
 const EmployeeReports = () => {
-  const { id } = useParams()
+  const params = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  const { id } = params
+
+  let [pageNumber, setPageNumber] = useState(params.pageNumber || 1)
+
+  const classes = useStyles()
 
   const userLoginReducer = useSelector((state) => state.userLogin)
   const { userInfo } = userLoginReducer
@@ -63,13 +90,24 @@ const EmployeeReports = () => {
     loading: loadingReports,
     error: errorReports,
     reports,
+    pages,
+    page,
   } = getReportsByEmployee
 
   useEffect(() => {
     dispatch(getUserDetails(id))
+    dispatch(listReportsByEmployee(id, pageNumber))
+  }, [dispatch, id, pageNumber])
 
-    dispatch(listReportsByEmployee(id))
-  }, [dispatch, id])
+  const employeeDeleteHandler = (id, userRole) => {
+    if (userRole === 'Admin') {
+      dispatch(deleteUser(id))
+      alert('Employee deleted')
+      navigate('/employee-list')
+    } else {
+      alert('Not Authorized')
+    }
+  }
 
   const reportOpener = (reportId) => {
     navigate(`/employee/${id}/view-report/${reportId}`)
@@ -112,6 +150,7 @@ const EmployeeReports = () => {
 
       {userInfo && userInfo.role === 'Admin' && (
         <Button
+          variant='contained'
           style={{
             background: ATC_COLOR.secondary,
             color: 'white',
@@ -135,7 +174,7 @@ const EmployeeReports = () => {
         </div>
       )}
 
-      {user && (
+      {user && user.department && (
         <UserProfileCard
           user={{
             _id: user._id,
@@ -147,15 +186,61 @@ const EmployeeReports = () => {
         />
       )}
 
+      {/* Eployee Edit / Delete buttons */}
+      {userInfo.role === 'Admin' ? (
+        <Button
+          variant='contained'
+          style={{
+            padding: '10px',
+            marginBottom: '20px',
+            backgroundColor: ATC_COLOR.secondary,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '250px',
+          }}
+          onClick={() => {
+            employeeDeleteHandler(id, userInfo.role)
+          }}
+        >
+          {<DeleteIcon style={{ height: '16px' }} />} Delete Employee
+        </Button>
+      ) : (
+        <>
+          {id === userInfo._id ? (
+            <>
+              <Button
+                variant='contained'
+                style={{
+                  padding: '10px',
+                  marginBottom: '20px',
+                  backgroundColor: ATC_COLOR.primary,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '150px',
+                }}
+              >
+                {<EditIcon style={{ height: '16px' }} />} Edit Profile
+              </Button>
+            </>
+          ) : (
+            <></>
+          )}
+        </>
+      )}
+
       {/* add report button for employees */}
       {userInfo && userInfo.role === 'Employee' && (
         <Button
           variant='contained'
           style={{
             padding: '10px',
-            margin: '10px 0',
-            marginBottom: '30px',
             backgroundColor: ATC_COLOR.primary,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '150px',
           }}
           onClick={newReportHandler}
         >
@@ -164,7 +249,7 @@ const EmployeeReports = () => {
       )}
 
       {/* Employee's list of reports */}
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} style={{ margin: '20px 0' }}>
         <Table sx={{ minWidth: 200 }} aria-label='customized table'>
           <TableHead>
             <TableRow>
@@ -175,8 +260,8 @@ const EmployeeReports = () => {
               <StyledTableCell align='left'>Description</StyledTableCell>
               <StyledTableCell>Satisfactory Score</StyledTableCell>
               <StyledTableCell>Hours Worked</StyledTableCell>
-              <StyledTableCell>View Report</StyledTableCell>
               <StyledTableCell>Remarks</StyledTableCell>
+              <StyledTableCell>View Report</StyledTableCell>
               <StyledTableCell>Approval Status</StyledTableCell>
               <StyledTableCell>Actions</StyledTableCell>
             </TableRow>
@@ -186,31 +271,81 @@ const EmployeeReports = () => {
             {reports &&
               reports.map((report, index) => (
                 <StyledTableRow key={report._id}>
-                  <StyledTableCell component='th' scope='row'>
-                    {index + 1}
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top', paddingTop: '24px' }}
+                  >
+                    {index + 1 + (page - 1) * 10}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top', paddingTop: '24px' }}
+                  >
                     {new Date(report.start_date).toLocaleDateString('en-US')}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top', paddingTop: '24px' }}
+                  >
                     {new Date(report.end_date).toLocaleDateString('en-US')}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{
+                      verticalAlign: 'top',
+                      paddingTop: '24px',
+                      maxWidth: '100px',
+                      overflow: 'hidden',
+                    }}
+                  >
                     {report.task}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{
+                      verticalAlign: 'top',
+                      paddingTop: '24px',
+                    }}
+                  >
                     {report.description}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top', paddingTop: '24px' }}
+                  >
                     {report.satisfactory_score}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top', paddingTop: '24px' }}
+                  >
                     {report.hours_worked}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top', paddingTop: '24px' }}
+                  >
+                    {report.remarks}
+                  </StyledTableCell>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top' }}
+                  >
                     <Button
                       variant='contained'
-                      style={{ backgroundColor: ATC_COLOR.primary }}
+                      style={{
+                        backgroundColor: ATC_COLOR.primary,
+                      }}
                       onClick={() => {
                         reportOpener(report._id)
                       }}
@@ -218,21 +353,57 @@ const EmployeeReports = () => {
                       View
                     </Button>
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
-                    {report.remarks}
-                  </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top', paddingTop: '24px' }}
+                  >
                     {report.is_received ? (
                       report.is_approved ? (
-                        <Button>Approved</Button>
+                        <span
+                          style={{
+                            color: ATC_COLOR.green,
+                            padding: '9px',
+                            border: `1px solid ${ATC_COLOR.green}`,
+                            borderRadius: '5px',
+                            cursor: 'default',
+                          }}
+                        >
+                          Approved
+                        </span>
                       ) : (
-                        <Button>Rejected</Button>
+                        <span
+                          style={{
+                            color: ATC_COLOR.red,
+                            padding: '9px',
+                            border: `1px solid ${ATC_COLOR.red}`,
+                            borderRadius: '5px',
+                            cursor: 'default',
+                          }}
+                        >
+                          Rejected
+                        </span>
                       )
                     ) : (
-                      <Button>Pending</Button>
+                      <span
+                        style={{
+                          color: ATC_COLOR.greenMidnight,
+                          padding: '9px',
+                          border: `1px solid ${ATC_COLOR.greenMidnight}`,
+                          borderRadius: '5px',
+                          cursor: 'default',
+                        }}
+                      >
+                        Pending
+                      </span>
                     )}
                   </StyledTableCell>
-                  <StyledTableCell component='th' scope='row'>
+                  <StyledTableCell
+                    component='th'
+                    scope='row'
+                    style={{ verticalAlign: 'top' }}
+                  >
                     {
                       <div
                         style={{
@@ -304,6 +475,24 @@ const EmployeeReports = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          margin: '20px 0',
+        }}
+      >
+        <Pagination
+          classes={{ ul: classes.ul }}
+          count={pages}
+          size='large'
+          page={pageNumber}
+          onChange={(event, value) => setPageNumber(value)}
+        />
+      </div>
     </div>
   )
 }

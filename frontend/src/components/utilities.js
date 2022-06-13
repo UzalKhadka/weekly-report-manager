@@ -1,8 +1,14 @@
+export const rowsPerPage = 10
+
 export const ATC_COLOR = {
   primary: '#063970',
+  primaryLight: '#637D98',
   primaryDark: '#020F1C',
   secondary: '#FF4352',
   white: '#FFFFFF',
+  red: '#A31621',
+  green: '#60B922',
+  greenMidnight: '#0B3C49',
 }
 
 export const getRandomColor = () => {

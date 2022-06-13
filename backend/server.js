@@ -8,6 +8,7 @@ import { errorHandler, notFound } from './middlewares/errorHandler.js'
 import userRoutes from './routes/userRoutes.js'
 import employeeRoutes from './routes/employeeRoutes.js'
 import reportRoutes from './routes/reportRoutes.js'
+import departmentRoutes from './routes/departmentRoutes.js'
 
 // import routes
 
@@ -32,6 +33,7 @@ app.use(express.json())
 app.use('/api/users', userRoutes)
 app.use('/api/employees', employeeRoutes)
 app.use('/api/reports', reportRoutes)
+app.use('/api/departments', departmentRoutes)
 
 const __dirname = path.resolve()
 if (process.env.NODE_ENV === 'production') {

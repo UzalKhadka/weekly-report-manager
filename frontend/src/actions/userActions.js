@@ -28,6 +28,9 @@ import {
   USER_UPDATE_PROFILE_SUCCESS,
   USER_UPDATE_REQUEST,
   USER_UPDATE_SUCCESS,
+  EMPLOYEE_NAME_ID_DEPT_LIST_REQUEST,
+  EMPLOYEE_NAME_ID_DEPT_LIST_SUCCESS,
+  EMPLOYEE_NAME_ID_DEPT_LIST_FAIL,
 } from '../constants/userConstants'
 
 const login = (email, password, rememberMe) => async (dispatch) => {
@@ -53,8 +56,11 @@ const login = (email, password, rememberMe) => async (dispatch) => {
       payload: data,
     })
 
+    localStorage.setItem('userInfo', JSON.stringify(data))
     if (rememberMe) {
-      localStorage.setItem('userInfo', JSON.stringify(data))
+      localStorage.setItem('rememberMeEmail', JSON.stringify(email))
+    } else {
+      localStorage.removeItem('rememberMeEmail')
     }
   } catch (error) {
     dispatch({
@@ -84,7 +90,7 @@ const logout = () => (dispatch) => {
   })
 }
 
-const register = (name, email, password) => async (dispatch) => {
+const register = (name, email, password, department) => async (dispatch) => {
   try {
     dispatch({
       type: USER_REGISTER_REQUEST,
@@ -98,7 +104,7 @@ const register = (name, email, password) => async (dispatch) => {
 
     const { data } = await axios.post(
       '/api/users',
-      { name, email, password },
+      { name, email, password, department },
       config
     )
 
@@ -225,10 +231,48 @@ const listUsers = () => async (dispatch, getState) => {
   }
 }
 
-const listEmployees = () => async (dispatch, getState) => {
+const listEmployees =
+  (pageNumber = '') =>
+  async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: EMPLOYEE_LIST_REQUEST,
+      })
+
+      const {
+        userLogin: { userInfo },
+      } = getState()
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      }
+
+      const { data } = await axios.get(
+        `/api/employees/latest-reports?pageNumber=${pageNumber}`,
+        config
+      )
+
+      dispatch({
+        type: EMPLOYEE_LIST_SUCCESS,
+        payload: data,
+      })
+    } catch (error) {
+      dispatch({
+        type: EMPLOYEE_LIST_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      })
+    }
+  }
+
+const listEmployeesNameIdDept = () => async (dispatch, getState) => {
   try {
     dispatch({
-      type: EMPLOYEE_LIST_REQUEST,
+      type: EMPLOYEE_NAME_ID_DEPT_LIST_REQUEST,
     })
 
     const {
@@ -241,15 +285,18 @@ const listEmployees = () => async (dispatch, getState) => {
       },
     }
 
-    const { data } = await axios.get(`/api/employees/latest-reports`, config)
+    const { data } = await axios.get(
+      `/api/employees/employees-name-id-dept`,
+      config
+    )
 
     dispatch({
-      type: EMPLOYEE_LIST_SUCCESS,
+      type: EMPLOYEE_NAME_ID_DEPT_LIST_SUCCESS,
       payload: data,
     })
   } catch (error) {
     dispatch({
-      type: EMPLOYEE_LIST_FAIL,
+      type: EMPLOYEE_NAME_ID_DEPT_LIST_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message
@@ -338,4 +385,5 @@ export {
   listEmployees,
   deleteUser,
   updateUser,
+  listEmployeesNameIdDept,
 }

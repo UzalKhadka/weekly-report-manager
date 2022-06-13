@@ -77,38 +77,43 @@ const createReport =
     }
   }
 
-const listReportsByEmployee = (id) => async (dispatch, getState) => {
-  try {
-    dispatch({
-      type: REPORT_LIST_BY_EMPLOYEE_REQUEST,
-    })
+const listReportsByEmployee =
+  (id, pageNumber = '') =>
+  async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: REPORT_LIST_BY_EMPLOYEE_REQUEST,
+      })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+      const {
+        userLogin: { userInfo },
+      } = getState()
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      }
+
+      const { data } = await axios.get(
+        `/api/reports/user/${id}?pageNumber=${pageNumber}`,
+        config
+      )
+
+      dispatch({
+        type: REPORT_LIST_BY_EMPLOYEE_SUCCESS,
+        payload: data,
+      })
+    } catch (error) {
+      dispatch({
+        type: REPORT_LIST_BY_EMPLOYEE_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      })
     }
-
-    const { data } = await axios.get(`/api/reports/user/${id}`, config)
-
-    dispatch({
-      type: REPORT_LIST_BY_EMPLOYEE_SUCCESS,
-      payload: data,
-    })
-  } catch (error) {
-    dispatch({
-      type: REPORT_LIST_BY_EMPLOYEE_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    })
   }
-}
 
 const getReportDetails = (id) => async (dispatch, getState) => {
   try {

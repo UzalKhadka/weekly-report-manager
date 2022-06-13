@@ -52,8 +52,6 @@ const CreateReport = () => {
 
   useEffect(() => {
     if (report) {
-      alert('Report created successfully!')
-
       dispatch({ type: REPORT_CREATE_RESET })
 
       navigate(`/employee/${userInfo._id}`)

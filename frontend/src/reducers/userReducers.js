@@ -3,6 +3,9 @@ import {
   EMPLOYEE_LIST_REQUEST,
   EMPLOYEE_LIST_RESET,
   EMPLOYEE_LIST_SUCCESS,
+  EMPLOYEE_NAME_ID_DEPT_LIST_REQUEST,
+  EMPLOYEE_NAME_ID_DEPT_LIST_SUCCESS,
+  EMPLOYEE_NAME_ID_DEPT_LIST_FAIL,
   USER_DELETE_FAIL,
   USER_DELETE_REQUEST,
   USER_DELETE_SUCCESS,
@@ -100,13 +103,39 @@ const userListReducer = (state = { users: [] }, action) => {
       return state
   }
 }
+
 const employeeListReducer = (state = { employees: [] }, action) => {
   switch (action.type) {
     case EMPLOYEE_LIST_REQUEST:
       return { loading: true }
     case EMPLOYEE_LIST_SUCCESS:
-      return { loading: false, success: true, employees: action.payload }
+      return {
+        loading: false,
+        success: true,
+        employees: action.payload.employees,
+        page: action.payload.page,
+        pages: action.payload.pages,
+      }
     case EMPLOYEE_LIST_FAIL:
+      return { loading: false, error: action.payload }
+    case EMPLOYEE_LIST_RESET:
+      return { employees: [] }
+    default:
+      return state
+  }
+}
+
+const employeeNameIdDeptListReducer = (state = { employees: [] }, action) => {
+  switch (action.type) {
+    case EMPLOYEE_NAME_ID_DEPT_LIST_REQUEST:
+      return { loading: true }
+    case EMPLOYEE_NAME_ID_DEPT_LIST_SUCCESS:
+      return {
+        loading: false,
+        success: true,
+        employees: action.payload,
+      }
+    case EMPLOYEE_NAME_ID_DEPT_LIST_FAIL:
       return { loading: false, error: action.payload }
     case EMPLOYEE_LIST_RESET:
       return { employees: [] }
@@ -152,4 +181,5 @@ export {
   userDeleteReducer,
   userUpdateReducer,
   employeeListReducer,
+  employeeNameIdDeptListReducer,
 }

@@ -3,6 +3,8 @@ import User from '../models/userModel.js'
 import { generateToken } from '../utils/generateToken.js'
 import dotenv from 'dotenv'
 
+import Report from '../models/reportModel.js'
+
 dotenv.config()
 
 const getUserRole = (role) => {
@@ -33,8 +35,6 @@ const getUserRole = (role) => {
 export const userLogin = asyncHandler(async (req, res) => {
   // find a user based on email
   const { email, password } = req.body
-
-  // console.log('backend', email, password)
 
   const user = await User.findOne({ email })
 
@@ -67,7 +67,7 @@ export const userLogout = asyncHandler(async (req, res) => {
 //@access   Public
 export const userRegister = asyncHandler(async (req, res) => {
   // console.log(req.body)
-  const { name, email, password } = req.body
+  const { name, email, password, department } = req.body
 
   // console.log('backend', name, email, password)
 
@@ -83,7 +83,7 @@ export const userRegister = asyncHandler(async (req, res) => {
     email,
     password,
     role: process.env.EMPLOYEE_ROLE,
-    department: 'Web Development',
+    department,
   })
 
   if (user) {
@@ -92,7 +92,7 @@ export const userRegister = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: getUserRole(user.role),
-      department: user.department,
+      // department: user.department,
       token: generateToken(user._id),
     })
   } else {
@@ -113,6 +113,7 @@ export const getUsers = asyncHandler(async (req, res, next) => {
     .select('-createdAt')
     .select('-updatedAt')
     .populate('reports')
+    .populate('department')
 
   if (users) {
     // only sending the most recent created report
@@ -160,6 +161,7 @@ export const getEmployees = asyncHandler(async (req, res, next) => {
     .select('-createdAt')
     .select('-updatedAt')
     .populate('reports')
+    .populate('department')
 
   if (employees) {
     res.json(employees)
@@ -174,12 +176,22 @@ export const getEmployees = asyncHandler(async (req, res, next) => {
 // @access  Admin & Associate
 export const getEmployeesWithLatestReport = asyncHandler(
   async (req, res, next) => {
+    const pageSize = 10
+    const page = Number(req.query.pageNumber) || 1
+
+    const employeesCount = await User.countDocuments({
+      role: process.env.EMPLOYEE_ROLE,
+    })
+
     const employees = await User.find({ role: process.env.EMPLOYEE_ROLE })
+      .limit(pageSize)
+      .skip(pageSize * (page - 1))
       .select('-password')
       .select('-__v')
       .select('-createdAt')
       .select('-updatedAt')
       .populate('reports')
+      .populate('department')
 
     if (employees) {
       // only sending the most recent created report
@@ -210,7 +222,11 @@ export const getEmployeesWithLatestReport = asyncHandler(
         return employeeWithReports
       })
 
-      res.json(employeesWithReports)
+      res.json({
+        employees: employeesWithReports,
+        page,
+        pages: Math.ceil(employeesCount / pageSize),
+      })
     } else {
       res.status(404)
       throw new Error('Employees not found')
@@ -227,6 +243,7 @@ export const getUserById = asyncHandler(async (req, res) => {
     .select('-salt')
     .select('-updatedAt')
     .select('-__v')
+    .populate('department')
 
   if (user) {
     user.role = getUserRole(user.role)
@@ -252,5 +269,28 @@ export const deleteUser = asyncHandler(async (req, res) => {
   } else {
     res.status(404)
     throw new Error('User not found')
+  }
+})
+
+// @desc    Get only name, id, and department of all employees [for search bar]
+// @route   DELETE /api/employees/employees-name-id-dept
+// @access  Private / Admin
+export const getEmployeesNamesIdDept = asyncHandler(async (req, res) => {
+  const employees = await User.find({ role: process.env.EMPLOYEE_ROLE })
+    .select('-email')
+    .select('-password')
+    .select('-role')
+    .select('-reports')
+    .select('-__v')
+    .select('-createdAt')
+    .select('-updatedAt')
+    .populate('department')
+
+  if (employees) {
+    // only sending the name and ids of employees
+    res.json(employees)
+  } else {
+    res.status(404)
+    throw new Error('Employees not found')
   }
 })

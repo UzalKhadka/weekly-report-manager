@@ -70,7 +70,6 @@ const EditReport = () => {
   useEffect(() => {
     if (!report) {
       dispatch(getUserDetails(user_id))
-
       dispatch(getReportDetails(report_id))
     } else {
       setStartDate(report.start_date)
@@ -95,6 +94,16 @@ const EditReport = () => {
     updateReportSuccess,
     navigate,
   ])
+
+  const backButtonHandler = () => {
+    if (userInfo && userInfo.role === 'Admin') {
+      navigate(`/employee/${user_id}`)
+    } else if (userInfo && userInfo.role === 'Employee') {
+      navigate(`/employee/${userInfo._id}`)
+    } else {
+      navigate('/')
+    }
+  }
 
   const editReportHandler = (event) => {
     event.preventDefault()
@@ -301,18 +310,57 @@ const EditReport = () => {
 
                 {report && report.is_received ? (
                   report.is_approved ? (
-                    <Button fullWidth sx={{ mt: 2 }}>
+                    <span
+                      style={{
+                        color: ATC_COLOR.green,
+                        padding: '9px',
+                        border: `1px solid ${ATC_COLOR.green}`,
+                        borderRadius: '5px',
+                        cursor: 'default',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '20px 0',
+                      }}
+                    >
                       Status: Approved
-                    </Button>
+                    </span>
                   ) : (
-                    <Button fullWidth sx={{ mt: 2 }}>
+                    <span
+                      style={{
+                        color: ATC_COLOR.red,
+                        padding: '9px',
+                        border: `1px solid ${ATC_COLOR.red}`,
+                        borderRadius: '5px',
+                        cursor: 'default',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '20px 0',
+                      }}
+                    >
                       Status: Rejected
-                    </Button>
+                    </span>
                   )
                 ) : (
-                  <Button fullWidth sx={{ mt: 2 }}>
+                  <span
+                    style={{
+                      color: ATC_COLOR.greenMidnight,
+                      padding: '9px',
+                      border: `1px solid ${ATC_COLOR.greenMidnight}`,
+                      borderRadius: '5px',
+                      cursor: 'default',
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '20px 0',
+                    }}
+                  >
                     Status: Pending
-                  </Button>
+                  </span>
                 )}
 
                 <Divider sx={{ background: '#000000', mb: 2 }} />
@@ -335,6 +383,19 @@ const EditReport = () => {
                 ) : (
                   <></>
                 )}
+
+                <Button
+                  fullWidth
+                  variant='contained'
+                  sx={{ mb: 2 }}
+                  style={{
+                    background: ATC_COLOR.secondary,
+                    marginBottom: '20px',
+                  }}
+                  onClick={backButtonHandler}
+                >
+                  Cancel
+                </Button>
               </Box>
             </Box>
           </Container>

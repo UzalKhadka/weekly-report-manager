@@ -44,7 +44,13 @@ const listReportsByEmployeeReducer = (state = { reports: [] }, action) => {
     case REPORT_LIST_BY_EMPLOYEE_REQUEST:
       return { loading: true }
     case REPORT_LIST_BY_EMPLOYEE_SUCCESS:
-      return { loading: false, success: true, reports: action.payload }
+      return {
+        loading: false,
+        success: true,
+        reports: action.payload.reports,
+        page: action.payload.page,
+        pages: action.payload.pages,
+      }
     case REPORT_LIST_BY_EMPLOYEE_FAIL:
       return { loading: false, error: action.payload }
     case REPORT_LIST_BY_EMPLOYEE_RESET:

@@ -12,12 +12,24 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { Divider } from '@mui/material'
+import {
+  Divider,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+} from '@mui/material'
 
 import { register } from '../actions/userActions'
+import { listDepartments } from '../actions/departmentActions'
 
 import Loader from './Loader'
 import Message from './Message'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import Visibility from '@mui/icons-material/Visibility'
 
 const theme = createTheme()
 
@@ -25,7 +37,10 @@ const Signup = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [department, setDepartment] = useState('')
   const [message, setMessage] = useState(null)
 
   const dispatch = useDispatch()
@@ -33,6 +48,17 @@ const Signup = () => {
 
   const userRegister = useSelector((state) => state.userRegister)
   const { loading, error, userInfo } = userRegister
+
+  const departmentList = useSelector((state) => state.listDepartments)
+  const {
+    loading: departmentLoading,
+    error: departmentError,
+    departments,
+  } = departmentList
+
+  useEffect(() => {
+    dispatch(listDepartments())
+  }, [dispatch])
 
   useEffect(() => {
     if (userInfo) {
@@ -47,23 +73,25 @@ const Signup = () => {
     if (password !== confirmPassword) {
       setMessage('Passwords do not match')
       alert('Passwords do not match')
+    } else if (!department) {
+      setMessage('Please select a department')
     } else {
       // dispatch the register action
-      dispatch(register(name, email, password))
+      dispatch(register(name, email, password, department))
     }
   }
 
   return (
     <ThemeProvider theme={theme}>
-      {loading && <Loader />}
+      {(loading || departmentLoading) && <Loader />}
 
-      {error && (
+      {(error || departmentError) && (
         <div
           style={{
             marginTop: '10px',
           }}
         >
-          <Message variant='error' children={error} />
+          <Message variant='error' children={error || departmentError} />
         </div>
       )}
 
@@ -119,27 +147,90 @@ const Signup = () => {
                   onChange={(event) => setEmail(event.target.value)}
                 />
               </Grid>
+
+              {/* password section */}
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name='password'
-                  label='Password'
-                  type='password'
-                  id='password'
-                  onChange={(event) => setPassword(event.target.value)}
-                />
+                <FormControl sx={{ width: '100%' }} variant='outlined'>
+                  <InputLabel htmlFor='outlined-adornment-password'>
+                    Password
+                  </InputLabel>
+                  <OutlinedInput
+                    id='outlined-adornment-password'
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={() => setShowPassword(!showPassword)}
+                          // onMouseDown={(event) => event.preventDefault()}
+                          edge='end'
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label='Password'
+                  />
+                </FormControl>
               </Grid>
+
+              {/* Confirm password field */}
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name='Confirm password'
-                  label='Confirm password'
-                  type='password'
-                  id='confirmPassword'
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                />
+                <FormControl sx={{ width: '100%' }} variant='outlined'>
+                  <InputLabel htmlFor='outlined-adornment-password'>
+                    Confirm Password
+                  </InputLabel>
+                  <OutlinedInput
+                    id='outlined-adornment-password'
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          // onMouseDown={(event) => event.preventDefault()}
+                          edge='end'
+                        >
+                          {showConfirmPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label='Password'
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* department field */}
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel id='demo-simple-select-label'>
+                    Department
+                  </InputLabel>
+                  <Select
+                    labelId='demo-simple-select-label'
+                    id='demo-simple-select'
+                    value={department}
+                    label='Department'
+                    onChange={(event) => setDepartment(event.target.value)}
+                  >
+                    {departments &&
+                      departments.map((dept) => (
+                        <MenuItem key={dept._id} value={dept._id}>
+                          {dept.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
             <Button

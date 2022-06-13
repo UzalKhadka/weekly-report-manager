@@ -256,18 +256,57 @@ const ViewReport = () => {
 
                 {report && report.is_received ? (
                   report.is_approved ? (
-                    <Button fullWidth sx={{ mt: 2 }}>
+                    <span
+                      style={{
+                        color: ATC_COLOR.green,
+                        padding: '9px',
+                        border: `1px solid ${ATC_COLOR.green}`,
+                        borderRadius: '5px',
+                        cursor: 'default',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '20px 0',
+                      }}
+                    >
                       Status: Approved
-                    </Button>
+                    </span>
                   ) : (
-                    <Button fullWidth sx={{ mt: 2 }}>
+                    <span
+                      style={{
+                        color: ATC_COLOR.red,
+                        padding: '9px',
+                        border: `1px solid ${ATC_COLOR.red}`,
+                        borderRadius: '5px',
+                        cursor: 'default',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '20px 0',
+                      }}
+                    >
                       Status: Rejected
-                    </Button>
+                    </span>
                   )
                 ) : (
-                  <Button fullWidth sx={{ mt: 2 }}>
+                  <span
+                    style={{
+                      color: ATC_COLOR.greenMidnight,
+                      padding: '9px',
+                      border: `1px solid ${ATC_COLOR.greenMidnight}`,
+                      borderRadius: '5px',
+                      cursor: 'default',
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '20px 0',
+                    }}
+                  >
                     Status: Pending
-                  </Button>
+                  </span>
                 )}
 
                 <Divider sx={{ background: '#000000', mb: 2 }} />
@@ -327,6 +366,19 @@ const ViewReport = () => {
                 ) : (
                   <></>
                 )}
+
+                <Button
+                  fullWidth
+                  variant='contained'
+                  sx={{ mb: 2 }}
+                  style={{
+                    background: ATC_COLOR.secondary,
+                    marginBottom: '20px',
+                  }}
+                  onClick={backButtonHandler}
+                >
+                  Back
+                </Button>
               </Box>
             </Box>
           </Container>

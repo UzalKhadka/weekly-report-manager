@@ -14,6 +14,9 @@ import Grid from '@mui/material/Grid'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import DoneIcon from '@mui/icons-material/Done'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 
 import { login } from '../actions/userActions'
@@ -21,14 +24,30 @@ import { login } from '../actions/userActions'
 import Loader from './Loader'
 import Message from './Message'
 import { ATC_COLOR } from './utilities'
+import {
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+} from '@mui/material'
 
 const theme = createTheme()
 
 const Login = () => {
   const [email, setEmail] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [message, setMessage] = useState(null)
+
+  const rememberMeEmail = JSON.parse(localStorage.getItem('rememberMeEmail'))
+
+  useEffect(() => {
+    if (rememberMeEmail) {
+      setEmail(rememberMeEmail)
+    }
+  }, [rememberMeEmail])
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -52,9 +71,10 @@ const Login = () => {
     if (!email.trim() || !password.trim()) {
       alert('Please enter your email and password!')
       setMessage('Please enter your email and password!')
+    } else {
+      // dispatch the login action
+      dispatch(login(email, password, rememberMe))
     }
-    // dispatch the login action
-    dispatch(login(email, password, rememberMe))
   }
 
   return (
@@ -216,6 +236,7 @@ const Login = () => {
                 onSubmit={submitHandler}
                 sx={{ mt: 1 }}
               >
+                {/* email field */}
                 <TextField
                   margin='normal'
                   required
@@ -225,19 +246,41 @@ const Login = () => {
                   name='email'
                   autoComplete='email'
                   autoFocus
+                  value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
-                <TextField
+
+                {/* password field */}
+                <FormControl
                   margin='normal'
-                  required
-                  fullWidth
-                  name='password'
-                  label='Password'
-                  type='password'
-                  id='password'
-                  autoComplete='current-password'
-                  onChange={(event) => setPassword(event.target.value)}
-                />
+                  sx={{ width: '100%' }}
+                  variant='outlined'
+                >
+                  {/* <FormControl sx={{ m: 1, width: '25ch' }} variant='outlined'> */}
+                  <InputLabel htmlFor='outlined-adornment-password'>
+                    Password
+                  </InputLabel>
+                  <OutlinedInput
+                    id='outlined-adornment-password'
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={() => setShowPassword(!showPassword)}
+                          // onMouseDown={(event) => event.preventDefault()}
+                          edge='end'
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label='Password'
+                  />
+                </FormControl>
+
                 <FormControlLabel
                   control={<Checkbox value='remember' color='primary' />}
                   label='Remember me'
